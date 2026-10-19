@@ -14,6 +14,10 @@ Aprenda a relacionar sintomas, configurações, evidências e consequências. Ab
 
 [**Abrir Network Engineer**](https://networkengineer-lab.deivison.chatgpt.site) — versão hospedada com acesso privado do proprietário. GitHub Pages permanece como opção separada, ainda não ativada por esta entrega.
 
+## Guia de uso
+
+Leia o [guia passo a passo](docs/GUIA-DE-USO.md): painéis, três exercícios resolvidos, sequência de aprendizagem, relatórios, persistência e solução de problemas. A aplicação também possui o botão **Guia de uso**.
+
 ## Começar
 
 Sem dependências de runtime, CDNs ou instalação npm:
@@ -70,7 +74,7 @@ O progresso é salvo em `localStorage`, por cenário e versão. Não há conta, 
 
 ## Publicação
 
-O projeto pode ser hospedado em qualquer servidor estático. O workflow `ci.yml` verifica o motor e o build. O workflow `pages.yml` é **manual**: antes de executá-lo, configure GitHub Pages → Source → GitHub Actions. A existência do workflow não confirma que Pages esteja habilitado ou que exista uma URL publicada.
+O projeto pode ser hospedado em qualquer servidor estático. O workflow `ci.yml` verifica o motor e o build. O workflow `pages.yml` publica automaticamente em pushes na `main` e também aceita execução manual: antes de executá-lo, configure GitHub Pages → Source → GitHub Actions. A existência do workflow não confirma que Pages esteja habilitado ou que exista uma URL publicada.
 
 ## Limites atuais
 
