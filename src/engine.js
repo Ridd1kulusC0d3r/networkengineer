@@ -19,6 +19,9 @@ export function act(scenario,session,id) {
   assertSession(scenario,session);
   const action=scenario.actions.find(a=>a.id===id);
   if(!action) throw new Error('Ação desconhecida.');
+  for(const [key,value] of Object.entries(action.requires||{})) {
+    if(session.state[key]!==value) throw new Error('Pré-requisito não atendido. Execute as etapas anteriores antes desta ação.');
+  }
   const next=structuredClone(session);next.tick++;
   next.state={...next.state,...action.effect};
   next.journal.push({tick:next.tick,type:'action',id,message:action.feedback,state:structuredClone(next.state)});

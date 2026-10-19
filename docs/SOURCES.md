@@ -18,3 +18,11 @@ Fontes consultadas em 19/10/2026 UTC. Evidências dos laboratórios foram escrit
 | I2P | https://i2p.net/en/docs/overview/intro/ | Rede sobreposta e túneis |
 
 As referências técnicas não são fontes dos registros fictícios E1/E2/E3. Não confundir uma citação de protocolo com confirmação de um incidente. Nenhuma referência endossa este projeto.
+
+## Expansão cyber 0.2
+
+- CISA, resposta e recuperação: https://www.cisa.gov/stopransomware/ransomware-guide
+- OWASP, gestão e revogação de segredos: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- OWASP, autenticação multifator: https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html
+
+Referências conceituais, não evidência dos incidentes fictícios. Exercícios escritos originalmente, sem reprodução dos textos das fontes.

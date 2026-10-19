@@ -1051,5 +1051,828 @@ export const scenarios = [
     ],
     "minutes": 15,
     "kind": "analítico"
+  },
+  {
+    "id": "cyber-session",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Senha trocada. Sessão ativa.",
+    "brief": "Uma conta sofreu phishing. A senha foi alterada, mas a sessão indevida permanece válida.",
+    "objective": "Invalidar a sessão, proteger novos acessos e preservar a auditoria.",
+    "nodes": [
+      "Usuário",
+      "IdP",
+      "Sessão",
+      "Auditoria"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "signin.log",
+        "content": "Conta LAB-12: sessão S-9 criada após aprovação indevida de MFA."
+      },
+      {
+        "id": "E2",
+        "source": "session.json",
+        "content": "Senha alterada às 10:03; S-9 ainda válida às 10:08 neste IdP fictício."
+      },
+      {
+        "id": "E3",
+        "source": "audit.txt",
+        "content": "Logs disponíveis. Não apagar evidências durante recuperação."
+      }
+    ],
+    "initial": {
+      "revoked": false,
+      "mfa": false,
+      "audit": true
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Revogar sessões da conta",
+        "effect": {
+          "revoked": true
+        },
+        "feedback": "Sessão S-9 invalidada no modelo."
+      },
+      {
+        "id": "A2",
+        "label": "Exigir MFA resistente a phishing",
+        "effect": {
+          "mfa": true
+        },
+        "feedback": "Nova autenticação exige fator resistente a phishing."
+      },
+      {
+        "id": "A3",
+        "label": "Apenas trocar senha novamente",
+        "effect": {},
+        "feedback": "Neste modelo, alterar a senha não revoga a sessão existente."
+      },
+      {
+        "id": "A4",
+        "label": "Apagar logs de login",
+        "effect": {
+          "audit": false
+        },
+        "feedback": "Auditoria perdida."
+      },
+      {
+        "id": "A5",
+        "label": "Restaurar auditoria do caso",
+        "effect": {
+          "audit": true
+        },
+        "feedback": "Cópia sintética preservada recuperada."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Sessão indevida revogada",
+        "key": "revoked",
+        "equals": true
+      },
+      {
+        "label": "Novos acessos protegidos",
+        "key": "mfa",
+        "equals": true
+      },
+      {
+        "label": "Auditoria preservada",
+        "key": "audit",
+        "equals": true
+      }
+    ],
+    "explanation": "Revogação depende do provedor. MFA protege novas autenticações; não invalida automaticamente tokens já emitidos.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-ransom",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Criptografia em andamento",
+    "brief": "O endpoint LAB-22 começou a modificar arquivos em um compartilhamento. O restante da rede ainda opera.",
+    "objective": "Conter a propagação, preservar evidência e manter os demais serviços.",
+    "nodes": [
+      "LAB-22",
+      "Compartilhamento",
+      "EDR",
+      "Serviços"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "edr.log",
+        "content": "Processo sintético confirmou criptografia anômala em LAB-22."
+      },
+      {
+        "id": "E2",
+        "source": "smb.log",
+        "content": "LAB-22 mantém sessão de escrita; nenhum segundo host foi confirmado."
+      },
+      {
+        "id": "E3",
+        "source": "response.txt",
+        "content": "Isolamento de rede disponível; coleta de evidências autorizada."
+      }
+    ],
+    "initial": {
+      "isolated": false,
+      "sessionClosed": false,
+      "evidence": false,
+      "services": true
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Isolar LAB-22",
+        "effect": {
+          "isolated": true
+        },
+        "feedback": "Endpoint removido da comunicação de rede."
+      },
+      {
+        "id": "A2",
+        "label": "Encerrar sessão de escrita de LAB-22",
+        "effect": {
+          "sessionClosed": true
+        },
+        "feedback": "Sessão no compartilhamento encerrada."
+      },
+      {
+        "id": "A3",
+        "label": "Preservar eventos do endpoint",
+        "effect": {
+          "evidence": true
+        },
+        "feedback": "Eventos preservados no registro do exercício."
+      },
+      {
+        "id": "A4",
+        "label": "Desligar todos os serviços",
+        "effect": {
+          "services": false
+        },
+        "feedback": "Interrupção desnecessária dos sistemas não afetados."
+      },
+      {
+        "id": "A5",
+        "label": "Restaurar serviços não afetados",
+        "effect": {
+          "services": true
+        },
+        "feedback": "Continuidade dos demais serviços restabelecida."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Endpoint isolado",
+        "key": "isolated",
+        "equals": true
+      },
+      {
+        "label": "Sessão de escrita encerrada",
+        "key": "sessionClosed",
+        "equals": true
+      },
+      {
+        "label": "Evidências preservadas",
+        "key": "evidence",
+        "equals": true
+      },
+      {
+        "label": "Serviços não afetados disponíveis",
+        "key": "services",
+        "equals": true
+      }
+    ],
+    "explanation": "Modelo de resposta coordenada, não execução de malware. Isolamento não reverte arquivos já alterados.",
+    "references": [
+      "https://www.cisa.gov/stopransomware/ransomware-guide"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-backup",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Backup verde, restauração incerta",
+    "brief": "O painel indica sucesso de backup. Ninguém testou a recuperação depois do incidente.",
+    "objective": "Comprovar recuperação isolada antes de liberar o serviço.",
+    "nodes": [
+      "Backup",
+      "Ambiente isolado",
+      "Validação",
+      "Produção"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "backup.log",
+        "content": "Job terminou com sucesso; nenhuma restauração de teste registrada."
+      },
+      {
+        "id": "E2",
+        "source": "integrity.txt",
+        "content": "O catálogo possui hashes de referência e conjunto de registros esperado."
+      },
+      {
+        "id": "E3",
+        "source": "change.txt",
+        "content": "Ambiente de restauração isolado disponível; liberação requer validação."
+      }
+    ],
+    "initial": {
+      "restored": false,
+      "validated": false,
+      "released": false
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Restaurar em ambiente isolado",
+        "effect": {
+          "restored": true
+        },
+        "feedback": "Cópia restaurada no ambiente de teste."
+      },
+      {
+        "id": "A2",
+        "label": "Validar integridade e dados",
+        "effect": {
+          "validated": true
+        },
+        "feedback": "Hashes e registros conferidos no conjunto sintético.",
+        "requires": {
+          "restored": true
+        }
+      },
+      {
+        "id": "A3",
+        "label": "Liberar serviço após validação",
+        "effect": {
+          "released": true
+        },
+        "feedback": "Serviço liberado com evidência de recuperação.",
+        "requires": {
+          "validated": true
+        }
+      }
+    ],
+    "checks": [
+      {
+        "label": "Restauração executada",
+        "key": "restored",
+        "equals": true
+      },
+      {
+        "label": "Integridade e dados validados",
+        "key": "validated",
+        "equals": true
+      },
+      {
+        "label": "Liberação controlada",
+        "key": "released",
+        "equals": true
+      }
+    ],
+    "explanation": "Sucesso do job não comprova capacidade de restauração. O modelo exige a ordem restaurar → validar → liberar.",
+    "references": [
+      "https://www.cisa.gov/stopransomware/ransomware-guide"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-secret",
+    "version": 1,
+    "track": "Cyber",
+    "title": "A chave continua funcionando",
+    "brief": "Uma chave de API apareceu em um arquivo público fictício. Apagar o arquivo não interrompe o acesso.",
+    "objective": "Substituir e revogar a chave sem indisponibilizar o serviço.",
+    "nodes": [
+      "Repositório",
+      "Cofre",
+      "API",
+      "Aplicação"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "finding.txt",
+        "content": "Chave sintética EXAMPLE-KEY exposta; não é uma credencial válida."
+      },
+      {
+        "id": "E2",
+        "source": "service.txt",
+        "content": "Aplicação depende da chave atual; credencial substituta pode ser provisionada."
+      },
+      {
+        "id": "E3",
+        "source": "access.log",
+        "content": "A chave antiga segue aceita até revogação explícita."
+      }
+    ],
+    "initial": {
+      "replacement": false,
+      "migrated": false,
+      "revoked": false,
+      "reviewed": false
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Provisionar credencial substituta no cofre",
+        "effect": {
+          "replacement": true
+        },
+        "feedback": "Credencial substituta preparada."
+      },
+      {
+        "id": "A2",
+        "label": "Migrar e verificar aplicação",
+        "effect": {
+          "migrated": true
+        },
+        "feedback": "Aplicação validada com credencial substituta.",
+        "requires": {
+          "replacement": true
+        }
+      },
+      {
+        "id": "A3",
+        "label": "Revogar chave exposta",
+        "effect": {
+          "revoked": true
+        },
+        "feedback": "Chave antiga invalidada.",
+        "requires": {
+          "migrated": true
+        }
+      },
+      {
+        "id": "A4",
+        "label": "Revisar uso da chave exposta",
+        "effect": {
+          "reviewed": true
+        },
+        "feedback": "Auditoria de acesso revisada."
+      },
+      {
+        "id": "A5",
+        "label": "Somente apagar arquivo público",
+        "effect": {},
+        "feedback": "A exposição visual foi removida; a chave antiga continua válida."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Aplicação migrada",
+        "key": "migrated",
+        "equals": true
+      },
+      {
+        "label": "Chave antiga revogada",
+        "key": "revoked",
+        "equals": true
+      },
+      {
+        "label": "Uso anterior investigado",
+        "key": "reviewed",
+        "equals": true
+      }
+    ],
+    "explanation": "Neste exercício, a troca coordenada preserva disponibilidade. Um incidente real pode exigir revogação imediata conforme risco e uso observado.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-waf",
+    "version": 1,
+    "track": "Cyber",
+    "title": "A proteção bloqueou o checkout",
+    "brief": "Uma nova regra WAF impede compras legítimas; desativar toda a proteção seria um atalho.",
+    "objective": "Corrigir a regra específica e comprovar segurança e continuidade.",
+    "nodes": [
+      "Cliente",
+      "WAF",
+      "Checkout",
+      "Testes"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "waf.log",
+        "content": "Regra LAB-104 bloqueia payload legítimo do checkout."
+      },
+      {
+        "id": "E2",
+        "source": "regression.txt",
+        "content": "Conjunto de teste: compra legítima e requisição maliciosa sintética."
+      },
+      {
+        "id": "E3",
+        "source": "change.txt",
+        "content": "Outras regras não participaram dos bloqueios observados."
+      }
+    ],
+    "initial": {
+      "tuned": false,
+      "protected": true,
+      "legitTest": false,
+      "attackTest": false
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Ajustar regra LAB-104 para o campo afetado",
+        "effect": {
+          "tuned": true
+        },
+        "feedback": "Exceção restrita ao campo legítimo."
+      },
+      {
+        "id": "A2",
+        "label": "Desativar WAF inteiro",
+        "effect": {
+          "protected": false
+        },
+        "feedback": "Proteções de outras rotas foram removidas."
+      },
+      {
+        "id": "A3",
+        "label": "Reativar proteção geral",
+        "effect": {
+          "protected": true
+        },
+        "feedback": "Demais regras ativas."
+      },
+      {
+        "id": "A4",
+        "label": "Testar compra legítima",
+        "effect": {
+          "legitTest": true
+        },
+        "feedback": "Compra de teste aceita.",
+        "requires": {
+          "tuned": true,
+          "protected": true
+        }
+      },
+      {
+        "id": "A5",
+        "label": "Testar bloqueio malicioso sintético",
+        "effect": {
+          "attackTest": true
+        },
+        "feedback": "Requisição maliciosa de teste bloqueada.",
+        "requires": {
+          "tuned": true,
+          "protected": true
+        }
+      }
+    ],
+    "checks": [
+      {
+        "label": "Ajuste específico aplicado",
+        "key": "tuned",
+        "equals": true
+      },
+      {
+        "label": "Proteção preservada",
+        "key": "protected",
+        "equals": true
+      },
+      {
+        "label": "Compra legítima testada",
+        "key": "legitTest",
+        "equals": true
+      },
+      {
+        "label": "Bloqueio malicioso testado",
+        "key": "attackTest",
+        "equals": true
+      }
+    ],
+    "explanation": "Ajuste de WAF deve ser sustentado por testes positivos e negativos. Não há payload ofensivo ou requisição externa.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-storage",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Público por engano",
+    "brief": "Um armazenamento de relatórios foi exposto. A aplicação usa identidade própria para acessá-lo.",
+    "objective": "Remover acesso anônimo, preservar acesso autorizado e revisar exposição.",
+    "nodes": [
+      "Visitante",
+      "Armazenamento",
+      "Aplicação",
+      "Auditoria"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "policy.json",
+        "content": "Anonymous: read permitido; identidade app-reports: read permitido."
+      },
+      {
+        "id": "E2",
+        "source": "access.log",
+        "content": "Acessos anônimos registrados; conteúdo sintético sem dados pessoais."
+      },
+      {
+        "id": "E3",
+        "source": "service.txt",
+        "content": "Aplicação não depende de links públicos: usa app-reports."
+      }
+    ],
+    "initial": {
+      "public": true,
+      "app": true,
+      "review": false
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Remover leitura anônima",
+        "effect": {
+          "public": false
+        },
+        "feedback": "Acesso público removido."
+      },
+      {
+        "id": "A2",
+        "label": "Negar todas as identidades",
+        "effect": {
+          "public": false,
+          "app": false
+        },
+        "feedback": "Relatórios indisponíveis também à aplicação."
+      },
+      {
+        "id": "A3",
+        "label": "Preservar acesso app-reports",
+        "effect": {
+          "app": true
+        },
+        "feedback": "Identidade da aplicação autorizada."
+      },
+      {
+        "id": "A4",
+        "label": "Revisar logs e escopo exposto",
+        "effect": {
+          "review": true
+        },
+        "feedback": "Janela e objetos acessados documentados."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Acesso anônimo removido",
+        "key": "public",
+        "equals": false
+      },
+      {
+        "label": "Aplicação continua autorizada",
+        "key": "app",
+        "equals": true
+      },
+      {
+        "label": "Exposição investigada",
+        "key": "review",
+        "equals": true
+      }
+    ],
+    "explanation": "Não há bucket real nem alteração em nuvem. Política abstraída para mostrar diferença entre remoção pública e indisponibilidade total.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
+  },
+  {
+    "id": "cyber-scan",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Scanner autorizado ou intrusão?",
+    "brief": "O SIEM marcou uma varredura interna. Existe uma janela de manutenção, mas isso não autoriza qualquer origem.",
+    "objective": "Correlacionar origem, horário e escopo antes de classificar.",
+    "nodes": [
+      "SIEM",
+      "Origem",
+      "Mudança",
+      "Analista"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "alert.log",
+        "content": "SCAN de LAB-SCAN-01 contra sub-rede aprovada às 02:15."
+      },
+      {
+        "id": "E2",
+        "source": "change.txt",
+        "content": "Mudança CHG-LAB: LAB-SCAN-01; 02:00–03:00; mesma sub-rede."
+      },
+      {
+        "id": "E3",
+        "source": "inventory.txt",
+        "content": "Identidade do scanner verificada no inventário; nenhuma divergência neste conjunto."
+      }
+    ],
+    "initial": {
+      "correlated": false,
+      "verdict": "pending",
+      "detection": true
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Correlacionar origem, janela e escopo",
+        "effect": {
+          "correlated": true
+        },
+        "feedback": "Três dimensões correspondem à mudança aprovada."
+      },
+      {
+        "id": "A2",
+        "label": "Classificar atividade autorizada neste caso",
+        "effect": {
+          "verdict": "authorized"
+        },
+        "feedback": "Alerta contextualizado sem generalizar todas as varreduras.",
+        "requires": {
+          "correlated": true
+        }
+      },
+      {
+        "id": "A3",
+        "label": "Classificar intrusão confirmada",
+        "effect": {
+          "verdict": "intrusion"
+        },
+        "feedback": "Conclusão incompatível com as evidências disponíveis."
+      },
+      {
+        "id": "A4",
+        "label": "Desativar detecção de varreduras",
+        "effect": {
+          "detection": false
+        },
+        "feedback": "Visibilidade de outros casos perdida."
+      },
+      {
+        "id": "A5",
+        "label": "Manter detecção para demais casos",
+        "effect": {
+          "detection": true
+        },
+        "feedback": "Cobertura permanece ativa."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Contexto correlacionado",
+        "key": "correlated",
+        "equals": true
+      },
+      {
+        "label": "Classificação adequada",
+        "key": "verdict",
+        "equals": "authorized"
+      },
+      {
+        "label": "Detecção preservada",
+        "key": "detection",
+        "equals": true
+      }
+    ],
+    "explanation": "A coincidência de horário sozinha não bastaria. Neste caso sintético, origem e escopo também foram verificados.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "analítico"
+  },
+  {
+    "id": "cyber-mfa",
+    "version": 1,
+    "track": "Cyber",
+    "title": "Muitas notificações, uma aprovação",
+    "brief": "O usuário recebeu notificações de MFA não iniciadas por ele e aprovou uma delas.",
+    "objective": "Conter a sessão, verificar identidade por canal conhecido e fortalecer autenticação.",
+    "nodes": [
+      "Usuário",
+      "IdP",
+      "Sessão suspeita",
+      "Suporte"
+    ],
+    "evidence": [
+      {
+        "id": "E1",
+        "source": "idp.log",
+        "content": "18 notificações; uma aprovação; sessão S-41 criada."
+      },
+      {
+        "id": "E2",
+        "source": "user.txt",
+        "content": "Usuário relata que não iniciou o login."
+      },
+      {
+        "id": "E3",
+        "source": "helpdesk.txt",
+        "content": "Canal corporativo previamente conhecido disponível para verificação."
+      }
+    ],
+    "initial": {
+      "revoked": false,
+      "verified": false,
+      "strong": false,
+      "enabled": true
+    },
+    "actions": [
+      {
+        "id": "A1",
+        "label": "Revogar sessão S-41",
+        "effect": {
+          "revoked": true
+        },
+        "feedback": "Sessão suspeita invalidada."
+      },
+      {
+        "id": "A2",
+        "label": "Verificar usuário por canal conhecido",
+        "effect": {
+          "verified": true
+        },
+        "feedback": "Identidade confirmada fora da solicitação suspeita."
+      },
+      {
+        "id": "A3",
+        "label": "Exigir fator resistente a phishing",
+        "effect": {
+          "strong": true
+        },
+        "feedback": "Política reforçada para novos acessos."
+      },
+      {
+        "id": "A4",
+        "label": "Desativar MFA para evitar notificações",
+        "effect": {
+          "enabled": false
+        },
+        "feedback": "Barreira de autenticação removida."
+      },
+      {
+        "id": "A5",
+        "label": "Manter MFA habilitado",
+        "effect": {
+          "enabled": true
+        },
+        "feedback": "Proteção de autenticação mantida."
+      }
+    ],
+    "checks": [
+      {
+        "label": "Sessão revogada",
+        "key": "revoked",
+        "equals": true
+      },
+      {
+        "label": "Identidade verificada",
+        "key": "verified",
+        "equals": true
+      },
+      {
+        "label": "Fator reforçado",
+        "key": "strong",
+        "equals": true
+      },
+      {
+        "label": "MFA preservado",
+        "key": "enabled",
+        "equals": true
+      }
+    ],
+    "explanation": "Uma aprovação de MFA não prova intenção legítima. Não há prompts, usuários ou identidades reais neste caso.",
+    "references": [
+      "https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html"
+    ],
+    "minutes": 20,
+    "kind": "operacional"
   }
 ];

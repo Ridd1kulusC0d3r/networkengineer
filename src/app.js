@@ -10,7 +10,7 @@ function notify(text){$('#notice').textContent=text;clearTimeout(notify.timer);n
 function save(){try{localStorage.setItem(key(current),JSON.stringify(session));}catch{storageAvailable=false;notify('Armazenamento indisponível. Exporte o relatório antes de sair.');}}
 function load(s){try{const raw=localStorage.getItem(key(s));return raw?restore(s,JSON.parse(raw)):createSession(s);}catch{return createSession(s);}}
 function open(id){current=scenarios.find(s=>s.id===id)||scenarios[0];session=load(current);selected=null;result=null;document.documentElement.style.setProperty('--track',colors[current.track]);renderCatalog();renderLab();}
-function renderTracks(){$('#tracks').innerHTML=tracks.map((t,i)=>`<button data-track="${t}" class="track ${t===track?'active':''}" aria-pressed="${t===track}"><span>${String(i).padStart(2,'0')} / ${t}</span><span>${t==='Todas'?12:2}</span></button>`).join('');}
+function renderTracks(){$('#tracks').innerHTML=tracks.map((t,i)=>`<button data-track="${t}" class="track ${t===track?'active':''}" aria-pressed="${t===track}"><span>${String(i).padStart(2,'0')} / ${t}</span><span>${t==='Todas'?scenarios.length:scenarios.filter(s=>s.track===t).length}</span></button>`).join('');}
 function renderCatalog(){const rows=scenarios.filter(s=>(track==='Todas'||s.track===track)&&`${s.title} ${s.brief} ${s.track}`.toLowerCase().includes(query));$('#count').textContent=rows.length;$('#catalog').innerHTML=rows.length?rows.map(s=>`<button class="lab-card ${s.id===current.id?'selected':''}" data-open="${s.id}" aria-pressed="${s.id===current.id}"><span class="card-meta" style="color:${colors[s.track]}">${s.track} <span>${s.minutes} MIN</span></span><strong>${escape(s.title)}</strong><span class="card-id">${s.id.toUpperCase()} <b>↗</b></span></button>`).join(''):'<p class="muted">Nenhum cenário encontrado.</p>';}
 function renderLab(){
 const s=current,e=s.evidence.find(e=>e.id===selected);
@@ -30,10 +30,11 @@ $('#catalog').addEventListener('click',event=>{const b=event.target.closest('[da
 $('#lab').addEventListener('input',event=>{if(event.target.id==='note'){session.note=event.target.value;save();}});
 $('#lab').addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;
 if(b.dataset.evidence){selected=b.dataset.evidence;session=inspect(current,session,selected);result=null;save();renderLab();document.querySelector(`[data-evidence="${selected}"]`).focus();}
-if(b.dataset.action){session=act(current,session,b.dataset.action);result=null;save();renderLab();notify(session.journal.at(-1).message);document.querySelector(`[data-action="${b.dataset.action}"]`).focus();}
+if(b.dataset.action){try{session=act(current,session,b.dataset.action);}catch(error){notify(error.message);return;}result=null;save();renderLab();notify(session.journal.at(-1).message);document.querySelector(`[data-action="${b.dataset.action}"]`).focus();}
 if(b.id==='validate'){result=evaluate(current,session);$('#assessment').innerHTML=assessment();}
 if(b.id==='reset'&&confirm('Reiniciar este caso e apagar seu progresso local?')){session=createSession(current);selected=null;result=null;save();renderLab();notify('Caso reiniciado.');}
 if(b.id==='export'){const blob=new Blob([JSON.stringify(report(current,session),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`networkengineer-${current.id}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notify('Relatório exportado com estado, decisões e evidências abertas.');}
 });
 window.addEventListener('hashchange',()=>open(location.hash.slice(1)));
+$('#total-labs').textContent=scenarios.length;
 renderTracks();open(location.hash.slice(1));

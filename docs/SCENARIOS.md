@@ -1,6 +1,6 @@
 # Catálogo de cenários
 
-12 casos executáveis por regras, todos sintéticos. Os itens de expansão no final são planejados, não implementados.
+20 casos executáveis por regras, todos sintéticos. Cyber contém 10 casos.
 
 ## net-dns — IP recebido. Serviço invisível.
 
@@ -122,13 +122,83 @@
 - Limite: I2P é uma rede sobreposta distinta do Tor. Neste exercício, darknet significa rede de anonimato; não significa telescope de IPs não usados.
 - Referência: https://i2p.net/en/docs/overview/intro/
 
-## Expansão planejada
+## cyber-session — Senha trocada. Sessão ativa.
 
-| Trilha | Próximos cenários | Evidência esperada |
-|---|---|---|
-| Redes | PMTUD, VLAN/trunk incorreto, BGP/ROV, loop de roteamento | Eventos e pacotes sintéticos derivados do futuro motor |
-| OT | Acesso de fornecedor, perda de sincronismo, redundância, baseline de protocolo | Matriz de fluxos, leitura/escrita, eventos de manutenção |
-| Cyber | Falso positivo de scan, DNS suspeito, regras com efeito colateral, isolamento parcial | Telemetria sintética e testes de regressão |
-| CTI | Desconflição de entidades, relação temporal, classificação de fonte, disseminação | Proveniência e hipóteses alternativas |
-| Darkweb | Alegação reciclada, campanha de desinformação, fonte dependente, identidade não autenticada | Capturas fictícias e cadeia de origem |
-| Darknet | Tor versus clearnet, falha de circuito, indisponibilidade I2P, observabilidade limitada | Modelos conceituais sem infraestrutura externa |
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Invalidar a sessão, proteger novos acessos e preservar a auditoria.
+- Contexto: Uma conta sofreu phishing. A senha foi alterada, mas a sessão indevida permanece válida.
+- Evidências: signin.log, session.json, audit.txt.
+- Avaliação: Sessão indevida revogada; Novos acessos protegidos; Auditoria preservada; inspecionar todas as evidências.
+- Limite: Revogação depende do provedor. MFA protege novas autenticações; não invalida automaticamente tokens já emitidos.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html
+
+## cyber-ransom — Criptografia em andamento
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Conter a propagação, preservar evidência e manter os demais serviços.
+- Contexto: O endpoint LAB-22 começou a modificar arquivos em um compartilhamento. O restante da rede ainda opera.
+- Evidências: edr.log, smb.log, response.txt.
+- Avaliação: Endpoint isolado; Sessão de escrita encerrada; Evidências preservadas; Serviços não afetados disponíveis; inspecionar todas as evidências.
+- Limite: Modelo de resposta coordenada, não execução de malware. Isolamento não reverte arquivos já alterados.
+- Referência: https://www.cisa.gov/stopransomware/ransomware-guide
+
+## cyber-backup — Backup verde, restauração incerta
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Comprovar recuperação isolada antes de liberar o serviço.
+- Contexto: O painel indica sucesso de backup. Ninguém testou a recuperação depois do incidente.
+- Evidências: backup.log, integrity.txt, change.txt.
+- Avaliação: Restauração executada; Integridade e dados validados; Liberação controlada; inspecionar todas as evidências.
+- Limite: Sucesso do job não comprova capacidade de restauração. O modelo exige a ordem restaurar → validar → liberar.
+- Referência: https://www.cisa.gov/stopransomware/ransomware-guide
+
+## cyber-secret — A chave continua funcionando
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Substituir e revogar a chave sem indisponibilizar o serviço.
+- Contexto: Uma chave de API apareceu em um arquivo público fictício. Apagar o arquivo não interrompe o acesso.
+- Evidências: finding.txt, service.txt, access.log.
+- Avaliação: Aplicação migrada; Chave antiga revogada; Uso anterior investigado; inspecionar todas as evidências.
+- Limite: Neste exercício, a troca coordenada preserva disponibilidade. Um incidente real pode exigir revogação imediata conforme risco e uso observado.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+
+## cyber-waf — A proteção bloqueou o checkout
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Corrigir a regra específica e comprovar segurança e continuidade.
+- Contexto: Uma nova regra WAF impede compras legítimas; desativar toda a proteção seria um atalho.
+- Evidências: waf.log, regression.txt, change.txt.
+- Avaliação: Ajuste específico aplicado; Proteção preservada; Compra legítima testada; Bloqueio malicioso testado; inspecionar todas as evidências.
+- Limite: Ajuste de WAF deve ser sustentado por testes positivos e negativos. Não há payload ofensivo ou requisição externa.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+
+## cyber-storage — Público por engano
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Remover acesso anônimo, preservar acesso autorizado e revisar exposição.
+- Contexto: Um armazenamento de relatórios foi exposto. A aplicação usa identidade própria para acessá-lo.
+- Evidências: policy.json, access.log, service.txt.
+- Avaliação: Acesso anônimo removido; Aplicação continua autorizada; Exposição investigada; inspecionar todas as evidências.
+- Limite: Não há bucket real nem alteração em nuvem. Política abstraída para mostrar diferença entre remoção pública e indisponibilidade total.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+
+## cyber-scan — Scanner autorizado ou intrusão?
+
+- Trilha: Cyber; modelo analítico; versão 1.
+- Objetivo: Correlacionar origem, horário e escopo antes de classificar.
+- Contexto: O SIEM marcou uma varredura interna. Existe uma janela de manutenção, mas isso não autoriza qualquer origem.
+- Evidências: alert.log, change.txt, inventory.txt.
+- Avaliação: Contexto correlacionado; Classificação adequada; Detecção preservada; inspecionar todas as evidências.
+- Limite: A coincidência de horário sozinha não bastaria. Neste caso sintético, origem e escopo também foram verificados.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html
+
+## cyber-mfa — Muitas notificações, uma aprovação
+
+- Trilha: Cyber; modelo operacional; versão 1.
+- Objetivo: Conter a sessão, verificar identidade por canal conhecido e fortalecer autenticação.
+- Contexto: O usuário recebeu notificações de MFA não iniciadas por ele e aprovou uma delas.
+- Evidências: idp.log, user.txt, helpdesk.txt.
+- Avaliação: Sessão revogada; Identidade verificada; Fator reforçado; MFA preservado; inspecionar todas as evidências.
+- Limite: Uma aprovação de MFA não prova intenção legítima. Não há prompts, usuários ou identidades reais neste caso.
+- Referência: https://cheatsheetseries.owasp.org/cheatsheets/Multifactor_Authentication_Cheat_Sheet.html
+

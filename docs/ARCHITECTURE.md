@@ -1,4 +1,4 @@
-# Arquitetura 0.1
+# Arquitetura 0.2
 
 Aplicação estática em módulos ES, sem dependências de runtime. Esta entrega escolhe JavaScript nativo para manter o primeiro laboratório executável sem instalação. React/TypeScript podem ser adotados quando o editor de topologia justificar a complexidade adicional.
 
@@ -34,3 +34,7 @@ Chaves `networkengineer:v1:<id>` em localStorage. Não há transmissão. Sessõe
 ## Evolução
 
 Adicionar um motor de eventos de rede como módulo independente, mantendo casos analíticos neste motor de decisões. Não usar o mesmo checkbox como substituto silencioso de handshake ou evidência de tráfego. Exportações para Containerlab só devem ser anunciadas depois de testes do laboratório gerado.
+
+## Pré-requisitos de ações
+
+Ações podem declarar `requires` como pares de chave/valor do estado. O motor rejeita transições sem pré-requisitos, sem alterar estado ou histórico. Recuperação, rotação e testes WAF usam essa restrição. A avaliação continua sendo do modelo, não de uma rede real.
