@@ -1,0 +1,6 @@
+{
+  "name": "networkengineer", "version": "0.1.0", "private": true, "type": "module",
+  "description": "Laboratórios de decisão e diagnóstico de redes, OT e inteligência",
+  "scripts": {"test": "node --test", "build": "node scripts/build.mjs", "start": "python3 -m http.server 8000 --bind 127.0.0.1"},
+  "engines": {"node": ">=22"}
+}
