@@ -12,7 +12,9 @@ Aprenda a relacionar sintomas, configurações, evidências e consequências. Ab
 
 ## Acessar o laboratório
 
-[**Abrir Network Engineer**](https://networkengineer-lab.deivison.chatgpt.site) — versão hospedada com acesso privado do proprietário. GitHub Pages permanece como opção separada, ainda não ativada por esta entrega.
+[**Abrir Network Engineer no GitHub Pages**](https://ridd1kulusc0d3r.github.io/networkengineer/) · [**Guia de uso**](https://ridd1kulusc0d3r.github.io/networkengineer/guide.html)
+
+A versão GitHub Pages é pública. A versão privada anterior em chatgpt.site permanece separada; o progresso local não é sincronizado entre os endereços.
 
 ## Guia de uso
 
